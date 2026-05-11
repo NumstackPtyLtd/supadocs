@@ -46,14 +46,14 @@ function loadConfig() {
 
 // Auto-inject component imports into MDX files
 function mdxComponentInjector(pkgRoot) {
-  const importStatement = `import { Note, Warning, Tip, Info, Card, CardGroup, CodeGroup, Steps, Step, Tabs, Tab, Accordion } from '${join(pkgRoot, 'client', 'components', 'index.ts').replace(/\\/g, '/')}';\n`;
+  const componentsPath = join(pkgRoot, 'client', 'components', 'index.ts').replace(/\\/g, '/');
+  const importStatement = `import { Note, Warning, Tip, Info, Card, CardGroup, CodeGroup, Steps, Step, Tabs, Tab, Accordion } from '${componentsPath}';\n`;
 
   return {
     name: 'supadocs-mdx-inject',
     enforce: 'pre',
     transform(code, id) {
       if (/\.mdx?$/.test(id) && !id.includes('node_modules')) {
-        // Insert after frontmatter if present
         const fmMatch = code.match(/^---\n[\s\S]*?\n---\n/);
         if (fmMatch) {
           return fmMatch[0] + importStatement + code.slice(fmMatch[0].length);
@@ -83,9 +83,7 @@ function supadocsPlugin(config) {
       }
       if (id === resolvedPagesModuleId) {
         const docsDir = config.docsDir || 'docs';
-        // Support both 'docs' subdirectory and '.' (root-level MDX files)
         if (docsDir === '.') {
-          // Use array with negative patterns to exclude non-doc directories
           return `
             const modules = import.meta.glob(
               ['/**/*.mdx', '!/**/node_modules/**', '!/**/dist/**', '!/**/dist-docs/**'],
@@ -104,18 +102,25 @@ function supadocsPlugin(config) {
 }
 
 function createViteConfig(config) {
+  // Resolve deps from user's node_modules first (hoisted), then supadocs's own
+  const userModules = join(cwd, 'node_modules');
   const supadocsModules = join(pkgRoot, 'node_modules');
+
+  function resolveModule(name) {
+    const userPath = join(userModules, name);
+    return existsSync(userPath) ? userPath : join(supadocsModules, name);
+  }
 
   return {
     root: cwd,
     resolve: {
       alias: {
         'supadocs/client': join(pkgRoot, 'client'),
-        'react': join(supadocsModules, 'react'),
-        'react-dom': join(supadocsModules, 'react-dom'),
-        'react-router-dom': join(supadocsModules, 'react-router-dom'),
-        'react/jsx-runtime': join(supadocsModules, 'react', 'jsx-runtime'),
-        'react/jsx-dev-runtime': join(supadocsModules, 'react', 'jsx-dev-runtime'),
+        'react': resolveModule('react'),
+        'react-dom': resolveModule('react-dom'),
+        'react-router-dom': resolveModule('react-router-dom'),
+        'react/jsx-runtime': join(resolveModule('react'), 'jsx-runtime.js'),
+        'react/jsx-dev-runtime': join(resolveModule('react'), 'jsx-dev-runtime.js'),
       },
     },
     plugins: [
@@ -180,21 +185,26 @@ async function buildSite() {
   const config = await loadConfig();
   const viteConfig = createViteConfig(config);
 
+  // For build, write index.html with absolute entry path to cwd
+  const entryPath = join(pkgRoot, 'client', 'entry.tsx');
   const htmlContent = readFileSync(join(pkgRoot, 'client', 'index.html'), 'utf-8')
-    .replace('/__ENTRY__', join(pkgRoot, 'client', 'entry.tsx'));
+    .replace('/__ENTRY__', entryPath);
 
   const tmpHtml = resolve(cwd, 'index.html');
   const { writeFileSync, unlinkSync } = await import('fs');
   writeFileSync(tmpHtml, htmlContent);
 
+  // Allow serving from pkgRoot during build
+  viteConfig.build = {
+    outDir: config.outDir || 'dist-docs',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: tmpHtml,
+    },
+  };
+
   try {
-    await build({
-      ...viteConfig,
-      build: {
-        outDir: config.outDir || 'dist-docs',
-        emptyOutDir: true,
-      },
-    });
+    await build(viteConfig);
     console.log('\nBuild complete!');
   } finally {
     if (existsSync(tmpHtml)) unlinkSync(tmpHtml);
@@ -228,30 +238,13 @@ This is a callout. Use Note, Warning, Tip, and Info components in your MDX.
     writeFileSync(resolve(cwd, 'docs.config.js'), `/** @type {import('supadocs').Config} */
 export default {
   name: 'My Project',
-  // logo: '/logo.svg',                    // or { light: '/logo-light.svg', dark: '/logo-dark.svg' }
+  // logo: '/logo.svg',
   // favicon: '/favicon.png',
   docsDir: 'docs',
 
   theme: {
-    accent: '#FF6C37',                      // brand color
-    // accentHover: '#E85A28',
-    // font: "'Inter', system-ui, sans-serif",
-    // fontMono: "'JetBrains Mono', monospace",
-    // radius: '6px',
-    // colors: { bg, bgCard, bgSurface, text, textHeading, textMuted, border },
-    // customCss: '',                       // raw CSS injected into <head>
+    accent: '#FF6C37',
   },
-
-  // Landing page (shown at /)
-  // landing: {
-  //   headline: 'My Project Documentation',
-  //   description: 'Everything you need to get started.',
-  //   primaryAction: { label: 'Get Started', href: '/introduction' },
-  //   secondaryAction: { label: 'GitHub', href: 'https://github.com' },
-  //   cards: [
-  //     { title: 'Quick Start', description: 'Up and running in 5 minutes.', icon: 'rocket', href: '/quickstart' },
-  //   ],
-  // },
 
   navigation: [
     {
@@ -262,7 +255,6 @@ export default {
 
   tabs: [],
   links: [],
-  // footer: { socials: { github: '' } },
 };
 `);
   }
