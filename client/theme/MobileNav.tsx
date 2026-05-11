@@ -1,0 +1,36 @@
+import React, { useEffect } from 'react';
+import { X } from 'lucide-react';
+import { Sidebar } from './Sidebar';
+import type { PageMeta } from 'supadocs/client/App';
+
+interface MobileNavProps {
+  config: any;
+  currentSlug: string;
+  pageMap: Map<string, PageMeta>;
+  open: boolean;
+  onClose: () => void;
+}
+
+export function MobileNav({ config, currentSlug, pageMap, open, onClose }: MobileNavProps) {
+  useEffect(() => {
+    if (open) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="sd-mobile-overlay" onClick={onClose}>
+      <div className="sd-mobile-nav" onClick={e => e.stopPropagation()}>
+        <div className="sd-mobile-nav-header">
+          <span className="sd-mobile-nav-title">{config.name}</span>
+          <button className="sd-mobile-close" onClick={onClose} aria-label="Close">
+            <X size={18} strokeWidth={2} />
+          </button>
+        </div>
+        <Sidebar config={config} currentSlug={currentSlug} pageMap={pageMap} />
+      </div>
+    </div>
+  );
+}

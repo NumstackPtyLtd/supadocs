@@ -1,0 +1,58 @@
+{
+  "name": "supadocs",
+  "version": "0.1.0",
+  "description": "Opinionated docs framework. MDX in, beautiful site out.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Numstack Pty Ltd",
+  "homepage": "https://github.com/NumstackPtyLtd/supadocs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NumstackPtyLtd/supadocs.git"
+  },
+  "keywords": [
+    "docs",
+    "documentation",
+    "mdx",
+    "static-site",
+    "vite",
+    "react",
+    "supaproxy"
+  ],
+  "bin": {
+    "supadocs": "./bin/supadocs.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./client/types.d.ts"
+    },
+    "./components": "./client/components/index.ts",
+    "./style.css": "./client/styles/global.css"
+  },
+  "files": [
+    "bin",
+    "client",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "node bin/supadocs.mjs dev"
+  },
+  "dependencies": {
+    "@mdx-js/rollup": "^3.1.0",
+    "@vitejs/plugin-react": "^4.4.1",
+    "lucide-react": "^1.8.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.0.0",
+    "vite": "^6.3.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}
