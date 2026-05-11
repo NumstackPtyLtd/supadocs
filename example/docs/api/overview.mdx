@@ -1,0 +1,67 @@
+---
+title: API overview
+description: REST API reference for the Acme platform.
+---
+
+The Acme API is a RESTful JSON API. All endpoints are authenticated and versioned.
+
+## Base URL
+
+```
+https://api.acme.com/v1
+```
+
+## Authentication
+
+Include your API key in the `Authorization` header:
+
+```bash
+curl https://api.acme.com/v1/users \
+  -H "Authorization: Bearer sk_live_..."
+```
+
+## Response format
+
+All responses return JSON:
+
+```json
+{
+  "data": { ... },
+  "meta": {
+    "page": 1,
+    "total": 42
+  }
+}
+```
+
+## Status codes
+
+| Code | Meaning |
+|------|---------|
+| `200` | Success |
+| `201` | Created |
+| `400` | Bad request |
+| `401` | Unauthorised |
+| `404` | Not found |
+| `429` | Rate limited |
+| `500` | Server error |
+
+## Rate limits
+
+<Warning>
+The API is rate limited to 1,000 requests per minute per API key. Exceeding this returns a 429 status code.
+</Warning>
+
+<Tabs>
+  <Tab label="TypeScript">
+    ```typescript
+    const users = await acme.users.list({ page: 1, limit: 20 });
+    ```
+  </Tab>
+  <Tab label="curl">
+    ```bash
+    curl https://api.acme.com/v1/users?page=1&limit=20 \
+      -H "Authorization: Bearer sk_live_..."
+    ```
+  </Tab>
+</Tabs>

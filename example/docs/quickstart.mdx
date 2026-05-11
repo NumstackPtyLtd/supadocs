@@ -1,0 +1,40 @@
+---
+title: Quick start
+description: Get up and running with Acme in under 5 minutes.
+---
+
+## Install the SDK
+
+```bash
+npm install @acme/sdk
+```
+
+## Initialise the client
+
+```typescript
+import { Acme } from '@acme/sdk';
+
+const acme = new Acme({ apiKey: process.env.ACME_API_KEY });
+```
+
+## Make a request
+
+```typescript
+const users = await acme.users.list();
+console.log(users);
+```
+
+<Tip>
+Use environment variables for API keys. Never hardcode them.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/guides/authentication">
+    Learn about API keys, OAuth, and JWTs.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Receive real-time events from Acme.
+  </Card>
+</CardGroup>

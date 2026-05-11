@@ -1,0 +1,47 @@
+---
+title: Webhooks
+description: Receive real-time events from Acme via webhooks.
+---
+
+Webhooks let your application receive real-time notifications when events happen in Acme.
+
+## Setup
+
+1. Navigate to **Settings > Webhooks** in the dashboard
+2. Click **Add endpoint**
+3. Enter your URL and select events to subscribe to
+4. Click **Save**
+
+<Note>
+Your endpoint must return a 2xx status code within 5 seconds or the delivery will be retried.
+</Note>
+
+## Event types
+
+| Event | Description |
+|-------|-------------|
+| `user.created` | A new user was created |
+| `user.updated` | A user's profile changed |
+| `invoice.paid` | An invoice was paid |
+| `invoice.failed` | A payment failed |
+
+## Verifying signatures
+
+Every webhook includes a `X-Acme-Signature` header. Verify it to ensure the request is authentic:
+
+```typescript
+import { verifyWebhook } from '@acme/sdk';
+
+app.post('/webhooks', (req, res) => {
+  const valid = verifyWebhook(req.body, req.headers['x-acme-signature'], WEBHOOK_SECRET);
+
+  if (!valid) return res.status(401).send('Invalid signature');
+
+  // Handle event
+  res.status(200).send('OK');
+});
+```
+
+<Accordion title="Retry behaviour">
+Failed deliveries are retried with exponential backoff: 1 min, 5 min, 30 min, 2 hours, 24 hours. After 5 attempts, the webhook is marked as failed and you are notified via email.
+</Accordion>

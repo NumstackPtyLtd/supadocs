@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
@@ -22,6 +22,20 @@ export function Layout({ config, currentSlug, page, pageMap }: LayoutProps) {
   const isLanding = location.pathname === '/' && config.landing;
   const breadcrumb = findBreadcrumb(config.navigation, currentSlug);
 
+  // Measure actual header height (including tabs bar) and set CSS variable
+  useEffect(() => {
+    const header = document.querySelector('.sd-header') as HTMLElement | null;
+    if (header) {
+      const update = () => {
+        const h = header.offsetHeight;
+        document.documentElement.style.setProperty('--sd-header-actual', `${h}px`);
+      };
+      update();
+      window.addEventListener('resize', update);
+      return () => window.removeEventListener('resize', update);
+    }
+  }, []);
+
   return (
     <div className="sd-layout">
       <Header config={config} onMenuToggle={() => setMobileNavOpen(!mobileNavOpen)} />
@@ -35,7 +49,7 @@ export function Layout({ config, currentSlug, page, pageMap }: LayoutProps) {
       />
 
       {isLanding ? (
-        <div style={{ paddingTop: 'var(--sd-header-height)' }}>
+        <div className="sd-landing-wrap">
           <Landing config={config} />
         </div>
       ) : (

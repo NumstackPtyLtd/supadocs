@@ -1,0 +1,44 @@
+---
+title: Authentication
+description: How to authenticate with the Acme API.
+---
+
+Every request to the Acme API must include an API key.
+
+## API keys
+
+Generate an API key from the dashboard under **Settings > API Keys**.
+
+```bash
+curl https://api.acme.com/users \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Warning>
+Never expose your API key in client-side code or commit it to version control.
+</Warning>
+
+## OAuth
+
+For user-facing applications, use OAuth 2.0:
+
+| Parameter | Description |
+|-----------|-------------|
+| `client_id` | Your app's client ID |
+| `redirect_uri` | Where to send the user after auth |
+| `scope` | Permissions to request |
+
+## JWTs
+
+For server-to-server communication, exchange your API key for a short-lived JWT:
+
+```typescript
+const token = await acme.auth.createToken({
+  expiresIn: '1h',
+  scopes: ['users:read', 'users:write'],
+});
+```
+
+<Info>
+JWTs expire after the specified duration. Refresh them before expiry to avoid interruptions.
+</Info>
