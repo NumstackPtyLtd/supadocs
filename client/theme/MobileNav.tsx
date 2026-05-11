@@ -29,6 +29,15 @@ export function MobileNav({ config, currentSlug, pageMap, open, onClose }: Mobil
             <X size={18} strokeWidth={2} />
           </button>
         </div>
+        {config.tabs?.length > 0 && (
+          <div className="sd-mobile-tabs">
+            {config.tabs.map((tab: any) => (
+              <a key={tab.href} href={tab.href} className="sd-mobile-tab" onClick={onClose}>
+                {tab.label}
+              </a>
+            ))}
+          </div>
+        )}
         <Sidebar config={config} currentSlug={currentSlug} pageMap={pageMap} />
       </div>
     </div>
