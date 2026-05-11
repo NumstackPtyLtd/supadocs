@@ -12,6 +12,7 @@ export interface Config {
     font?: string;
     fontHeading?: string;
     fontMono?: string;
+    fontUrls?: string | string[];
     radius?: string;
     colors?: {
       bg?: string;

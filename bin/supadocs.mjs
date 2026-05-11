@@ -9,6 +9,7 @@ import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
+import rehypeSupalight from 'supalight/rehype';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = resolve(__dirname, '..');
@@ -123,6 +124,7 @@ function createViteConfig(config) {
         enforce: 'pre',
         ...mdx({
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+          rehypePlugins: [rehypeSupalight],
           providerImportSource: undefined,
         }),
       },

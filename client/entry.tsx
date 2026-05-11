@@ -29,6 +29,24 @@ if (theme.colors) {
   if (c.border) root.style.setProperty('--sd-border', c.border);
 }
 
+// Load custom font URLs
+if (theme.fontUrls) {
+  const urls: string[] = Array.isArray(theme.fontUrls) ? theme.fontUrls : [theme.fontUrls];
+  urls.forEach((url: string) => {
+    if (url.startsWith('http')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      document.head.appendChild(link);
+    } else {
+      // Treat as @font-face CSS
+      const style = document.createElement('style');
+      style.textContent = url;
+      document.head.appendChild(style);
+    }
+  });
+}
+
 // Custom CSS injection
 if (theme.customCss) {
   const style = document.createElement('style');
