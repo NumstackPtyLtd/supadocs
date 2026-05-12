@@ -177,6 +177,10 @@ cd example
 npx supadocs dev
 ```
 
+## Documentation
+
+Full documentation at [docs.supaproxy.cloud](https://docs.supaproxy.cloud/introduction).
+
 ## License
 
 MIT
