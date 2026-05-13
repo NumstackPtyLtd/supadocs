@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { List } from 'lucide-react';
 
@@ -25,6 +25,7 @@ export function TOC() {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState('');
   const location = useLocation();
+  const clickLock = useRef<number | null>(null);
 
   const refresh = useCallback(() => {
     setHeadings(extractHeadings());
@@ -33,7 +34,7 @@ export function TOC() {
   useEffect(() => {
     // Clear immediately on route change to prevent stale headings
     setHeadings([]);
-    setActiveId('');
+    setActiveId(window.location.hash.replace('#', '') || '');
 
     // Try extracting after a short delay (content may already be rendered)
     const timer = setTimeout(refresh, 150);
@@ -81,6 +82,7 @@ export function TOC() {
 
     const observer = new IntersectionObserver(
       entries => {
+        if (clickLock.current && Date.now() < clickLock.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting) { setActiveId(entry.target.id); break; }
         }
@@ -112,12 +114,15 @@ export function TOC() {
               className={`sd-toc-link ${h.level === 3 ? 'sd-toc-link-sub' : ''} ${activeId === h.id ? 'sd-toc-link-active' : ''}`}
               onClick={e => {
                 e.preventDefault();
+                clickLock.current = Date.now() + 1000;
                 const el = document.getElementById(h.id);
                 if (el) {
-                  const top = el.getBoundingClientRect().top + window.scrollY - 80;
+                  const headerHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sd-header-height') || '48', 10);
+                  const top = el.getBoundingClientRect().top + window.scrollY - headerHeight - 56;
                   window.scrollTo({ top, behavior: 'smooth' });
                 }
                 setActiveId(h.id);
+                history.replaceState(null, '', `#${h.id}`);
               }}
             >
               {h.text}

@@ -523,7 +523,7 @@ a { color: inherit; text-decoration: none; }
 
 .sd-prose h2,
 .sd-prose h3 {
-  scroll-margin-top: 80px;
+  scroll-margin-top: calc(var(--sd-header-height) + 56px);
 }
 
 .sd-prose h2 {
