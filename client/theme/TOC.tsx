@@ -1,34 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { List } from 'lucide-react';
 
 interface Heading { id: string; text: string; level: number; }
+
+function extractHeadings(): Heading[] {
+  const prose = document.querySelector('.sd-prose');
+  if (!prose) return [];
+
+  const elements = prose.querySelectorAll('h2, h3');
+  const items: Heading[] = [];
+
+  elements.forEach(el => {
+    if (!el.id) {
+      el.id = el.textContent?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || '';
+    }
+    items.push({ id: el.id, text: el.textContent || '', level: parseInt(el.tagName[1]) });
+  });
+
+  return items;
+}
 
 export function TOC() {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState('');
   const location = useLocation();
 
+  const refresh = useCallback(() => {
+    setHeadings(extractHeadings());
+  }, []);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const prose = document.querySelector('.sd-prose');
-      if (!prose) return;
+    // Clear immediately on route change to prevent stale headings
+    setHeadings([]);
+    setActiveId('');
 
-      const elements = prose.querySelectorAll('h2, h3');
-      const items: Heading[] = [];
+    // Try extracting after a short delay (content may already be rendered)
+    const timer = setTimeout(refresh, 150);
 
-      elements.forEach(el => {
-        if (!el.id) {
-          el.id = el.textContent?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || '';
+    // Also observe DOM mutations in case content loads later
+    const prose = document.querySelector('.sd-prose');
+    let observer: MutationObserver | null = null;
+
+    if (prose) {
+      observer = new MutationObserver(() => {
+        const found = extractHeadings();
+        if (found.length > 0) {
+          setHeadings(found);
+          observer?.disconnect();
         }
-        items.push({ id: el.id, text: el.textContent || '', level: parseInt(el.tagName[1]) });
       });
+      observer.observe(prose, { childList: true, subtree: true });
+    } else {
+      // Prose element might not exist yet; watch the body
+      observer = new MutationObserver(() => {
+        const el = document.querySelector('.sd-prose');
+        if (el) {
+          const found = extractHeadings();
+          if (found.length > 0) {
+            setHeadings(found);
+          }
+          observer?.disconnect();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
 
-      setHeadings(items);
-    }, 100);
+    // Clean up after 3 seconds max
+    const cleanup = setTimeout(() => observer?.disconnect(), 3000);
 
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(cleanup);
+      observer?.disconnect();
+    };
+  }, [location.pathname, refresh]);
 
   useEffect(() => {
     if (headings.length === 0) return;
