@@ -110,7 +110,15 @@ export function TOC() {
             <a
               href={`#${h.id}`}
               className={`sd-toc-link ${h.level === 3 ? 'sd-toc-link-sub' : ''} ${activeId === h.id ? 'sd-toc-link-active' : ''}`}
-              onClick={e => { e.preventDefault(); document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth' }); setActiveId(h.id); }}
+              onClick={e => {
+                e.preventDefault();
+                const el = document.getElementById(h.id);
+                if (el) {
+                  const top = el.getBoundingClientRect().top + window.scrollY - 80;
+                  window.scrollTo({ top, behavior: 'smooth' });
+                }
+                setActiveId(h.id);
+              }}
             >
               {h.text}
             </a>
