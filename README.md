@@ -181,6 +181,12 @@ npx supadocs dev
 
 Full documentation at [docs.supaproxy.cloud](https://docs.supaproxy.cloud/introduction).
 
+## Package exports
+
+The `./components` export points to raw TypeScript source (`client/components/index.ts`). This is intentional: supadocs is a Vite-based framework and is consumed by projects that run through Vite, which handles TypeScript natively. The source export works correctly in that context.
+
+If you are importing supadocs components outside of a Vite pipeline, you will need to compile the TypeScript yourself.
+
 ## License
 
 MIT
