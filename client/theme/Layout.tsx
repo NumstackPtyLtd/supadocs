@@ -71,7 +71,7 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
           onDismiss={() => setBannerVisible(false)}
         />
       )}
-      <Header config={config} onMenuToggle={() => setMobileNavOpen(!mobileNavOpen)} />
+      <Header config={config} onMenuToggle={() => setMobileNavOpen(!mobileNavOpen)} versionPrefix={versionPrefix} />
 
       <MobileNav
         config={config}
@@ -107,7 +107,7 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
                 <div className="sd-prose">
                   <MDXContent Component={page.Component} />
                 </div>
-                <Footer config={config} />
+                <Footer config={config} versionPrefix={versionPrefix} />
               </>
             ) : (
               <div className="sd-not-found">

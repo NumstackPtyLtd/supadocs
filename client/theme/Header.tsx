@@ -9,9 +9,11 @@ import pages from 'virtual:supadocs-pages';
 interface HeaderProps {
   config: any;
   onMenuToggle: () => void;
+  versionPrefix?: string;
 }
 
-export function Header({ config, onMenuToggle }: HeaderProps) {
+export function Header({ config, onMenuToggle, versionPrefix = '' }: HeaderProps) {
+  const linkPrefix = versionPrefix ? `/${versionPrefix}` : '';
   const [theme, setTheme] = useState(() => {
     return document.documentElement.getAttribute('data-theme') || 'light';
   });
@@ -43,7 +45,7 @@ export function Header({ config, onMenuToggle }: HeaderProps) {
             <button className="sd-menu-btn" onClick={onMenuToggle} aria-label="Toggle menu">
               <Menu size={18} strokeWidth={2} />
             </button>
-            <a href="/" className="sd-logo">
+            <a href={linkPrefix || '/'} className="sd-logo">
               {config.logo ? (
                 <img src={typeof config.logo === 'string' ? config.logo : (theme === 'dark' ? config.logo.dark : config.logo.light)} alt={config.name} className="sd-logo-img" />
               ) : (
@@ -75,7 +77,7 @@ export function Header({ config, onMenuToggle }: HeaderProps) {
         {config.tabs?.length > 0 && (
           <div className="sd-tabs-bar">
             {config.tabs.map((tab: any) => (
-              <a key={tab.href} href={tab.href} className="sd-tab">{tab.label}</a>
+              <a key={tab.href} href={`${linkPrefix}${tab.href}`} className="sd-tab">{tab.label}</a>
             ))}
           </div>
         )}
