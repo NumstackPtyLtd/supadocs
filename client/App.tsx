@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 // @ts-ignore virtual module
 import config from 'virtual:supadocs-config';
@@ -44,6 +44,28 @@ function getFirstPage(): string {
   return 'introduction';
 }
 
+/** Detect if current path is a versioned route. Returns { version, slug } or null. */
+function parseVersionFromPath(pathname: string): { version: string; slug: string } | null {
+  if (!config.versions?.length) return null;
+  const path = pathname.slice(1); // strip leading /
+  for (const v of config.versions) {
+    if (v.default) continue;
+    const prefix = v.path.replace(/^\//, '');
+    if (path === prefix || path.startsWith(prefix + '/')) {
+      const slug = path.slice(prefix.length + 1) || getFirstPage();
+      return { version: v.label, slug: `${prefix}/${slug}` };
+    }
+  }
+  return null;
+}
+
+/** Get the current (default) version label. */
+function getCurrentVersionLabel(): string {
+  if (!config.versions?.length) return '';
+  const current = config.versions.find((v: any) => v.default);
+  return current?.label || config.versions[0]?.label || '';
+}
+
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,9 +73,15 @@ export function App() {
 
   const isRoot = location.pathname === '/';
   const hasLanding = !!config.landing;
+  const versionInfo = parseVersionFromPath(location.pathname);
 
-  const slug = isRoot ? getFirstPage() : location.pathname.slice(1);
+  const slug = isRoot ? getFirstPage() : (versionInfo ? versionInfo.slug : location.pathname.slice(1));
   const page = pageMap.get(slug);
+
+  // Scroll to top on page navigation
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Only redirect / to first page if there's no landing page configured
   useEffect(() => {
@@ -68,6 +96,8 @@ export function App() {
       currentSlug={slug}
       page={isRoot && hasLanding ? null : (page || null)}
       pageMap={pageMap}
+      versionInfo={versionInfo}
+      currentVersionLabel={getCurrentVersionLabel()}
     />
   );
 }

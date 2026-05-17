@@ -6,11 +6,14 @@ import config from 'virtual:supadocs-config';
 // @ts-ignore virtual module
 import pages from 'virtual:supadocs-pages';
 
-interface FooterProps { config: any; }
+interface FooterProps { config: any; versionPrefix?: string; }
 
-export function Footer({ config: cfg }: FooterProps) {
+export function Footer({ config: cfg, versionPrefix = '' }: FooterProps) {
   const location = useLocation();
-  const slug = location.pathname.slice(1);
+  const linkPrefix = versionPrefix ? `/${versionPrefix}` : '';
+  const slug = versionPrefix
+    ? location.pathname.slice(1).replace(`${versionPrefix}/`, '')
+    : location.pathname.slice(1);
   const docsDir = cfg.docsDir || 'docs';
 
   const allPages: string[] = [];
@@ -21,9 +24,10 @@ export function Footer({ config: cfg }: FooterProps) {
   const next = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : null;
 
   function getTitle(s: string) {
+    const lookupSlug = versionPrefix ? `${versionPrefix}/${s}` : s;
     for (const [path, mod] of Object.entries(pages) as [string, any][]) {
       const ps = docsDir === '.' ? path.replace(/^\//, '').replace(/\.mdx?$/, '') : path.replace(`/${docsDir}/`, '').replace(/\.mdx?$/, '');
-      if (ps === s) return mod.frontmatter?.title || s.split('/').pop();
+      if (ps === lookupSlug || ps === s) return mod.frontmatter?.title || s.split('/').pop();
     }
     return s.split('/').pop();
   }
@@ -32,13 +36,13 @@ export function Footer({ config: cfg }: FooterProps) {
     <div className="sd-footer">
       <div className="sd-footer-nav">
         {prev ? (
-          <a href={`/${prev}`} className="sd-footer-link sd-footer-prev">
+          <a href={`${linkPrefix}/${prev}`} className="sd-footer-link sd-footer-prev">
             <ArrowLeft size={14} strokeWidth={2} />
             <span>{getTitle(prev)}</span>
           </a>
         ) : <div />}
         {next ? (
-          <a href={`/${next}`} className="sd-footer-link sd-footer-next">
+          <a href={`${linkPrefix}/${next}`} className="sd-footer-link sd-footer-next">
             <span>{getTitle(next)}</span>
             <ArrowRight size={14} strokeWidth={2} />
           </a>

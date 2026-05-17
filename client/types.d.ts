@@ -1,3 +1,16 @@
+export interface VersionConfig {
+  label: string;
+  path: string;
+  default?: boolean;
+  accent?: string;
+}
+
+export interface BannerConfig {
+  text: string;
+  href?: string;
+  dismissible?: boolean;
+}
+
 export interface Config {
   name: string;
   logo?: string | { light: string; dark: string };
@@ -5,6 +18,8 @@ export interface Config {
   docsDir?: string;
   port?: number;
   outDir?: string;
+  versions?: VersionConfig[];
+  banner?: BannerConfig;
 
   theme?: {
     accent?: string;

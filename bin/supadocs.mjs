@@ -22,9 +22,10 @@ if (!command || command === '--help' || command === '-h') {
   supadocs - Opinionated docs framework
 
   Usage:
-    supadocs dev     Start dev server
-    supadocs build   Build static site
-    supadocs init    Scaffold a new docs project
+    supadocs dev              Start dev server
+    supadocs build            Build static site
+    supadocs init             Scaffold a new docs project
+    supadocs snapshot <label> Snapshot current docs as a version (e.g. supadocs snapshot v1)
   `);
   process.exit(0);
 }
@@ -284,6 +285,68 @@ export default {
   console.log('\nRun `npx supadocs dev` to start.');
 }
 
+async function snapshot() {
+  const label = process.argv[3];
+  if (!label) {
+    console.error('Usage: supadocs snapshot <label>');
+    console.error('Example: supadocs snapshot v1');
+    process.exit(1);
+  }
+
+  const config = await loadConfig();
+  const docsDir = config.docsDir || 'docs';
+  const { cpSync, mkdirSync, readdirSync, statSync, readFileSync: readFs, writeFileSync: writeFs } = await import('fs');
+
+  // Find all MDX files recursively (no glob dependency)
+  function findMdx(dir, results = []) {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (entry === 'node_modules' || entry === 'dist' || entry === 'dist-docs' || entry === label) continue;
+      if (statSync(full).isDirectory()) {
+        findMdx(full, results);
+      } else if (entry.endsWith('.mdx')) {
+        results.push(full);
+      }
+    }
+    return results;
+  }
+
+  const searchDir = docsDir === '.' ? cwd : resolve(cwd, docsDir);
+  const files = findMdx(searchDir).map(f => {
+    const rel = f.slice(cwd.length + 1);
+    return rel;
+  });
+
+  if (files.length === 0) {
+    console.error('No MDX files found to snapshot.');
+    process.exit(1);
+  }
+
+  // Copy each file into the versioned directory
+  const versionDir = docsDir === '.' ? label : join(docsDir, label);
+  for (const file of files) {
+    const relativePath = docsDir === '.' ? file : file.replace(`${docsDir}/`, '');
+    const dest = resolve(cwd, versionDir, relativePath);
+    mkdirSync(dirname(dest), { recursive: true });
+    cpSync(resolve(cwd, file), dest);
+  }
+
+  console.log(`Snapshot created: ${versionDir}/ (${files.length} files)`);
+
+  // Update docs.config.js: add version entry if not already present
+  const configPath = resolve(cwd, 'docs.config.js');
+  if (existsSync(configPath)) {
+    let configContent = readFs(configPath, 'utf-8');
+    if (!configContent.includes(`'${label}'`) && !configContent.includes(`"${label}"`)) {
+      console.log(`\nAdd this to your docs.config.js:\n`);
+      console.log(`  versions: [`);
+      console.log(`    { label: 'Latest', path: '/', default: true },`);
+      console.log(`    { label: '${label}', path: '/${label}' },`);
+      console.log(`  ],`);
+    }
+  }
+}
+
 switch (command) {
   case 'dev':
     dev();
@@ -293,6 +356,9 @@ switch (command) {
     break;
   case 'init':
     init();
+    break;
+  case 'snapshot':
+    snapshot();
     break;
   default:
     console.error(`Unknown command: ${command}`);
