@@ -11,7 +11,7 @@ export function Tabs({ children }: TabsProps) {
   Children.forEach(children, (child) => {
     if (isValidElement(child) && (child.type as any) === Tab) {
       const props = child.props as any;
-      tabs.push({ label: props.label || `Tab ${tabs.length + 1}`, content: props.children });
+      tabs.push({ label: props.title || props.label || `Tab ${tabs.length + 1}`, content: props.children });
     }
   });
 
