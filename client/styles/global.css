@@ -675,6 +675,7 @@ a { color: inherit; text-decoration: none; }
   padding: 16px;
   background: var(--sd-bg-card);
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  height: 100%;
 }
 .sd-card:hover { border-color: var(--sd-text-faint); box-shadow: var(--sd-shadow); transform: translateY(-1px); }
 
