@@ -78,6 +78,11 @@ export function App() {
   const slug = isRoot ? getFirstPage() : (versionInfo ? versionInfo.slug : location.pathname.slice(1));
   const page = pageMap.get(slug);
 
+  // Scroll to top on page navigation
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Only redirect / to first page if there's no landing page configured
   useEffect(() => {
     if (isRoot && !hasLanding) {
