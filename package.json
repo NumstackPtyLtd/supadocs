@@ -1,6 +1,6 @@
 {
   "name": "@supaproxy/supadocs",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Opinionated docs framework. MDX in, beautiful site out.",
   "type": "module",
   "license": "MIT",
