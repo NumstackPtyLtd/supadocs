@@ -2,6 +2,7 @@ export interface VersionConfig {
   label: string;
   path: string;
   default?: boolean;
+  accent?: string;
 }
 
 export interface BannerConfig {

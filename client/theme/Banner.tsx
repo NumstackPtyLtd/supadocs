@@ -1,22 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, ArrowRight } from 'lucide-react';
 
 interface BannerProps {
   text: string;
   href?: string;
   dismissible?: boolean;
+  onDismiss?: () => void;
 }
 
-export function Banner({ text, href, dismissible = true }: BannerProps) {
-  const [dismissed, setDismissed] = useState(() => {
-    try { return sessionStorage.getItem('sd-banner-dismissed') === '1'; } catch { return false; }
-  });
-
-  if (dismissed) return null;
-
+export function Banner({ text, href, dismissible = true, onDismiss }: BannerProps) {
   function handleDismiss() {
-    setDismissed(true);
     try { sessionStorage.setItem('sd-banner-dismissed', '1'); } catch {}
+    onDismiss?.();
   }
 
   const content = (

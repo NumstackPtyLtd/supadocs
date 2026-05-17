@@ -22,6 +22,10 @@ interface LayoutProps {
 
 export function Layout({ config, currentSlug, page, pageMap, versionInfo, currentVersionLabel }: LayoutProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [bannerVisible, setBannerVisible] = useState(() => {
+    if (!config.banner) return false;
+    try { return sessionStorage.getItem('sd-banner-dismissed') !== '1'; } catch { return true; }
+  });
   const location = useLocation();
   const isLanding = location.pathname === '/' && config.landing;
   const versionPrefix = versionInfo ? versionInfo.slug.split('/')[0] : '';
@@ -41,13 +45,30 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
     }
   }, []);
 
+  // Apply version-specific accent colour
+  useEffect(() => {
+    if (versionInfo && config.versions) {
+      const v = config.versions.find((ver: any) => ver.label === versionInfo.version);
+      if (v?.accent) {
+        document.documentElement.style.setProperty('--sd-accent', v.accent);
+        document.documentElement.style.setProperty('--sd-accent-subtle', `${v.accent}18`);
+        return () => {
+          const defaultAccent = config.theme?.accent || '#6B9FE8';
+          document.documentElement.style.setProperty('--sd-accent', defaultAccent);
+          document.documentElement.style.setProperty('--sd-accent-subtle', `${defaultAccent}18`);
+        };
+      }
+    }
+  }, [versionInfo?.version]);
+
   return (
-    <div className="sd-layout">
-      {config.banner && (
+    <div className={`sd-layout ${bannerVisible ? 'sd-has-banner' : ''}`}>
+      {bannerVisible && (
         <Banner
           text={config.banner.text}
           href={config.banner.href}
           dismissible={config.banner.dismissible}
+          onDismiss={() => setBannerVisible(false)}
         />
       )}
       <Header config={config} onMenuToggle={() => setMobileNavOpen(!mobileNavOpen)} />
