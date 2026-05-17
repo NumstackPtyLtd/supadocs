@@ -8,6 +8,7 @@ import { MobileNav } from './MobileNav';
 import { MDXContent } from './MDXProvider';
 import { Landing } from './Landing';
 import { VersionBanner } from './VersionBanner';
+import { Banner } from './Banner';
 import type { PageMeta } from 'supadocs/client/App';
 
 interface LayoutProps {
@@ -42,6 +43,13 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
 
   return (
     <div className="sd-layout">
+      {config.banner && (
+        <Banner
+          text={config.banner.text}
+          href={config.banner.href}
+          dismissible={config.banner.dismissible}
+        />
+      )}
       <Header config={config} onMenuToggle={() => setMobileNavOpen(!mobileNavOpen)} />
 
       <MobileNav

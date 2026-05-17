@@ -4,6 +4,12 @@ export interface VersionConfig {
   default?: boolean;
 }
 
+export interface BannerConfig {
+  text: string;
+  href?: string;
+  dismissible?: boolean;
+}
+
 export interface Config {
   name: string;
   logo?: string | { light: string; dark: string };
@@ -12,6 +18,7 @@ export interface Config {
   port?: number;
   outDir?: string;
   versions?: VersionConfig[];
+  banner?: BannerConfig;
 
   theme?: {
     accent?: string;
