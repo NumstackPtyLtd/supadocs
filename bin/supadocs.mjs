@@ -205,6 +205,25 @@ async function buildSite() {
 
   try {
     await build(viteConfig);
+
+    // Copy static assets (logo, favicon, fonts) to build output
+    const outDir = resolve(cwd, config.outDir || 'dist-docs');
+    const { cpSync, mkdirSync } = await import('fs');
+    const staticDirs = ['logo', 'fonts'];
+    for (const dir of staticDirs) {
+      const src = resolve(cwd, dir);
+      if (existsSync(src)) {
+        const dest = resolve(outDir, dir);
+        mkdirSync(dest, { recursive: true });
+        cpSync(src, dest, { recursive: true });
+      }
+    }
+    // Copy favicon files
+    for (const name of ['favicon.svg', 'favicon.png', 'favicon.ico']) {
+      const src = resolve(cwd, name);
+      if (existsSync(src)) cpSync(src, resolve(outDir, name));
+    }
+
     console.log('\nBuild complete!');
   } finally {
     if (existsSync(tmpHtml)) unlinkSync(tmpHtml);
