@@ -9,9 +9,10 @@ interface MobileNavProps {
   pageMap: Map<string, PageMeta>;
   open: boolean;
   onClose: () => void;
+  versionPrefix?: string;
 }
 
-export function MobileNav({ config, currentSlug, pageMap, open, onClose }: MobileNavProps) {
+export function MobileNav({ config, currentSlug, pageMap, open, onClose, versionPrefix }: MobileNavProps) {
   useEffect(() => {
     if (open) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
@@ -38,7 +39,7 @@ export function MobileNav({ config, currentSlug, pageMap, open, onClose }: Mobil
             ))}
           </div>
         )}
-        <Sidebar config={config} currentSlug={currentSlug} pageMap={pageMap} />
+        <Sidebar config={config} currentSlug={currentSlug} pageMap={pageMap} versionPrefix={versionPrefix} />
       </div>
     </div>
   );

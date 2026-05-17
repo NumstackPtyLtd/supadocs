@@ -23,7 +23,8 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
   const isLanding = location.pathname === '/' && config.landing;
-  const breadcrumb = findBreadcrumb(config.navigation, currentSlug);
+  const versionPrefix = versionInfo ? versionInfo.slug.split('/')[0] : '';
+  const breadcrumb = findBreadcrumb(config.navigation, versionPrefix ? currentSlug.replace(`${versionPrefix}/`, '') : currentSlug);
 
   // Measure actual header height (including tabs bar) and set CSS variable
   useEffect(() => {
@@ -49,6 +50,7 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
         pageMap={pageMap}
         open={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
+        versionPrefix={versionPrefix}
       />
 
       {isLanding ? (
@@ -58,7 +60,7 @@ export function Layout({ config, currentSlug, page, pageMap, versionInfo, curren
       ) : (
         <div className="sd-body">
           <aside className="sd-sidebar">
-            <Sidebar config={config} currentSlug={currentSlug} pageMap={pageMap} />
+            <Sidebar config={config} currentSlug={currentSlug} pageMap={pageMap} versionPrefix={versionPrefix} />
           </aside>
 
           <main className="sd-content">

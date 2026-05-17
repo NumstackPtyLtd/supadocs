@@ -7,9 +7,10 @@ interface SidebarProps {
   config: any;
   currentSlug: string;
   pageMap: Map<string, PageMeta>;
+  versionPrefix?: string;
 }
 
-export function Sidebar({ config, currentSlug, pageMap }: SidebarProps) {
+export function Sidebar({ config, currentSlug, pageMap, versionPrefix = '' }: SidebarProps) {
   return (
     <nav className="sd-nav">
       {config.links?.map((link: any) => (
@@ -19,27 +20,37 @@ export function Sidebar({ config, currentSlug, pageMap }: SidebarProps) {
         </a>
       ))}
 
-      {config.navigation?.map((group: any) => (
-        <div key={group.group} className="sd-nav-group">
-          <div className="sd-nav-group-title">{group.group}</div>
-          <ul className="sd-nav-list">
-            {group.pages?.map((slug: string) => {
-              const page = pageMap.get(slug);
-              const isActive = currentSlug === slug;
-              return (
-                <li key={slug}>
-                  <Link
-                    to={`/${slug}`}
-                    className={`sd-nav-item ${isActive ? 'sd-nav-item-active' : ''}`}
-                  >
-                    {page?.title || slug.split('/').pop()}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+      {config.navigation?.map((group: any) => {
+        // When viewing a version, only show pages that exist in the versioned pageMap
+        const visiblePages = versionPrefix
+          ? group.pages?.filter((slug: string) => pageMap.has(`${versionPrefix}/${slug}`))
+          : group.pages;
+
+        if (!visiblePages?.length) return null;
+
+        return (
+          <div key={group.group} className="sd-nav-group">
+            <div className="sd-nav-group-title">{group.group}</div>
+            <ul className="sd-nav-list">
+              {visiblePages.map((slug: string) => {
+                const fullSlug = versionPrefix ? `${versionPrefix}/${slug}` : slug;
+                const page = pageMap.get(fullSlug);
+                const isActive = currentSlug === fullSlug;
+                return (
+                  <li key={slug}>
+                    <Link
+                      to={`/${fullSlug}`}
+                      className={`sd-nav-item ${isActive ? 'sd-nav-item-active' : ''}`}
+                    >
+                      {page?.title || slug.split('/').pop()}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
     </nav>
   );
 }
