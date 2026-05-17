@@ -8,7 +8,7 @@ Opinionated docs framework. MDX in, beautiful site out.
 - Landing page with cards
 - Full theme customisation
 - Any [Lucide](https://lucide.dev) icon by name
-- Zero config in your project — just MDX files and a `docs.config.js`
+- Zero config in your project. Just MDX files and a `docs.config.js`
 
 ## Quick start
 
