@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 import { MobileNav } from './MobileNav';
 import { MDXContent } from './MDXProvider';
 import { Landing } from './Landing';
+import { VersionBanner } from './VersionBanner';
 import type { PageMeta } from 'supadocs/client/App';
 
 interface LayoutProps {
@@ -14,9 +15,11 @@ interface LayoutProps {
   currentSlug: string;
   page: PageMeta | null;
   pageMap: Map<string, PageMeta>;
+  versionInfo?: { version: string; slug: string } | null;
+  currentVersionLabel?: string;
 }
 
-export function Layout({ config, currentSlug, page, pageMap }: LayoutProps) {
+export function Layout({ config, currentSlug, page, pageMap, versionInfo, currentVersionLabel }: LayoutProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
   const isLanding = location.pathname === '/' && config.landing;
@@ -59,6 +62,12 @@ export function Layout({ config, currentSlug, page, pageMap }: LayoutProps) {
           </aside>
 
           <main className="sd-content">
+            {versionInfo && (
+              <VersionBanner
+                version={versionInfo.version}
+                currentLabel={currentVersionLabel || 'latest'}
+              />
+            )}
             {page ? (
               <>
                 {breadcrumb && <div className="sd-breadcrumb">{breadcrumb}</div>}
