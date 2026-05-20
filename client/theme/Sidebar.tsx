@@ -36,13 +36,15 @@ export function Sidebar({ config, currentSlug, pageMap, versionPrefix = '' }: Si
                 const fullSlug = versionPrefix ? `${versionPrefix}/${slug}` : slug;
                 const page = pageMap.get(fullSlug);
                 const isActive = currentSlug === fullSlug;
+                const label = page?.title || slug.split("/").pop() || slug;
                 return (
                   <li key={slug}>
                     <Link
                       to={`/${fullSlug}`}
                       className={`sd-nav-item ${isActive ? 'sd-nav-item-active' : ''}`}
+                      title={label}
                     >
-                      {page?.title || slug.split('/').pop()}
+                      {label}
                     </Link>
                   </li>
                 );
