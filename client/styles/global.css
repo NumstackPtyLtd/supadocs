@@ -687,6 +687,44 @@ a { color: inherit; text-decoration: none; }
 .sd-card-title { font-size: 13.5px; font-weight: 600; color: var(--sd-text-heading); margin-bottom: 4px; }
 .sd-card-desc { font-size: 12.5px; color: var(--sd-text-muted); line-height: 1.45; }
 
+/* ── Code block copy button ── */
+.sd-code-block-wrapper {
+  position: relative;
+}
+.sd-code-block-wrapper pre {
+  margin: 0;
+}
+.sd-copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--sd-bg-surface);
+  border: 1px solid var(--sd-border);
+  border-radius: 5px;
+  color: var(--sd-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  z-index: 10;
+}
+.sd-code-block-wrapper:hover .sd-copy-button {
+  opacity: 1;
+}
+.sd-copy-button:hover {
+  color: var(--sd-text-heading);
+  background: var(--sd-bg-hover);
+  border-color: var(--sd-border-light);
+}
+.sd-copy-button-copied {
+  opacity: 1;
+  color: var(--sd-success);
+}
+
 /* ── Code group ── */
 .sd-code-group { border: 1px solid var(--sd-border); border-radius: var(--sd-radius); overflow: hidden; margin: 1.15em 0; }
 
